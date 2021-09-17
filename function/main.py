@@ -14,8 +14,10 @@ def photo_analysis_service(event, context):
 
 def _analyze_photo(bucket, file_name):
     client = vision.ImageAnnotatorClient()
-    image = vision.Image(source=vision.ImageSource(image_uri=f'gs://{bucket}/{file_name}'))
-    objects = client.object_localization(image=image).localized_object_annotations
+    image = vision.Image(source=vision.ImageSource(
+        image_uri=f'gs://{bucket}/{file_name}'))
+    objects = client.object_localization(
+        image=image).localized_object_annotations
 
     return objects
 
@@ -27,10 +29,10 @@ def _store_results(bucket, file_name, objects):
 
         db.collection(u'tags').document(object_.name.lower()).set(
             {u'photo_urls': firestore.ArrayUnion(
-                    [u'https://storage.googleapis.com/{}/{}'.format(bucket, file_name)]
-                )
+                [u'https://storage.googleapis.com/{}/{}'.format(
+                    bucket, file_name)]
+            )
             },
             merge=True)
 
         print('\n{} (confidence: {})'.format(object_.name, object_.score))
-
